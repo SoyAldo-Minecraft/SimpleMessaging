@@ -1,0 +1,16 @@
+
+debug: false
+
+# Nombre del servidor que se usara para identificar este servidor.
+# Dejar vacío para generar uno aleatorio cada vez que se inicie el servidor.
+serverName: ""
+
+# Información para la conexión con redis.
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+
+# Ajustes para los mensajes.
+message:
+  responseTimeLimit: 5

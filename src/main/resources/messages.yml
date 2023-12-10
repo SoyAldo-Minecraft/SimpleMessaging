@@ -1,0 +1,12 @@
+prefix: ""
+
+noPermission: "%prefix% &cYou do not have sufficient permission to execute this command."
+emptySubCommand: "%prefix% &cThe sub command is empty."
+invalidSubCommand: "%prefix% &cThe sub command &7%subCommand% &cis invalid."
+help:
+  - ""
+  - " %prefix% &"
+  - " /simplemessaging reload  | &7Reload files and connections."
+  - " /simplemessaging version | &7Show plugin version."
+  - ""
+reloaded: "%prefix% &aFiles and connections has been reloaded."
