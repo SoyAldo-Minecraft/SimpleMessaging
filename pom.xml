@@ -6,7 +6,7 @@
 
     <groupId>com.soyaldo</groupId>
     <artifactId>SimpleMessaging</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>SimpleMessaging</name>
@@ -89,7 +89,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>5.0.0</version>
+            <version>5.1.0</version>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>

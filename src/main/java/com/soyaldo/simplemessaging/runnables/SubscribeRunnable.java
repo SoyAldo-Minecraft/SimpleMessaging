@@ -10,22 +10,25 @@ import com.soyaldo.simplemessaging.message.enums.MessageType;
 import com.soyaldo.simplemessaging.message.types.Message;
 import com.soyaldo.simplemessaging.redis.RedisManager;
 import com.soyaldo.simplemessaging.utils.BytesAndStrings;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class SubscribeRunnable implements Runnable {
 
     private final SimpleMessaging plugin;
+    private final Jedis jedis;
 
-    public SubscribeRunnable(SimpleMessaging plugin) {
+    public SubscribeRunnable(SimpleMessaging plugin, Jedis jedis) {
         this.plugin = plugin;
+        this.jedis = jedis;
     }
 
     @Override
     public void run() {
         RedisManager redisManager = plugin.getRedisManager();
         try {
-            redisManager.getSubscriber().getJedis().subscribe(new JedisPubSub() {
+            jedis.subscribe(new JedisPubSub() {
                 @Override
                 public void onMessage(String c, String bytes) {
                     ByteArrayDataInput receivedMessage = ByteStreams.newDataInput(BytesAndStrings.translate(bytes));
@@ -64,7 +67,7 @@ public class SubscribeRunnable implements Runnable {
                 }
             }, "simpleMessaging");
         } catch (JedisConnectionException ignore) {
-            redisManager.getSubscriber().connect();
+            plugin.getDebugger().error("Subscriber connection closed.");
         }
     }
 

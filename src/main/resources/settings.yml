@@ -1,4 +1,3 @@
-
 debug: false
 
 # Nombre del servidor que se usara para identificar este servidor.
@@ -10,6 +9,8 @@ redis:
   host: "localhost"
   port: 6379
   password: ""
+  maxConnections: 10
+  maxIdleConnections: 5
 
 # Ajustes para los mensajes.
 message:
