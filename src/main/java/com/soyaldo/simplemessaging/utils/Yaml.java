@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.util.List;
 import java.util.logging.Level;
 
 public class Yaml {
@@ -122,6 +123,24 @@ public class Yaml {
     public FileConfiguration getFileConfiguration() {
         if (fileConfiguration == null) reload();
         return fileConfiguration;
+    }
+
+    public String getString(String path) {
+        return fileConfiguration.getString(path);
+    }
+
+    public String getString(String path, String def) {
+        return fileConfiguration.getString(path, def);
+    }
+
+    public List<String> getStringList(String path) {
+        return fileConfiguration.getStringList(path);
+    }
+
+    public List<String> getStringList(String path, List<String> def) {
+        List<String> result = fileConfiguration.getStringList(path);
+        if (result.isEmpty()) return def;
+        return result;
     }
 
 }

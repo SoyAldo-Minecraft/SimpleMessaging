@@ -2,33 +2,32 @@ package com.soyaldo.simplemessaging.runnables;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import com.soyaldo.simplemessaging.SimpleMessaging;
 import com.soyaldo.simplemessaging.channel.ChannelManager;
 import com.soyaldo.simplemessaging.channel.models.Channel;
 import com.soyaldo.simplemessaging.message.MessageManager;
 import com.soyaldo.simplemessaging.message.enums.MessageType;
 import com.soyaldo.simplemessaging.message.types.Message;
+import com.soyaldo.simplemessaging.node.Node;
 import com.soyaldo.simplemessaging.redis.RedisManager;
 import com.soyaldo.simplemessaging.utils.BytesAndStrings;
-import redis.clients.jedis.Jedis;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.bukkit.plugin.java.JavaPlugin;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+@RequiredArgsConstructor
+@Getter
 public class SubscribeRunnable implements Runnable {
 
-    private final SimpleMessaging plugin;
-    private final Jedis jedis;
-
-    public SubscribeRunnable(SimpleMessaging plugin, Jedis jedis) {
-        this.plugin = plugin;
-        this.jedis = jedis;
-    }
+    private final Node node;
 
     @Override
     public void run() {
-        RedisManager redisManager = plugin.getRedisManager();
+        JavaPlugin javaPlugin = node.getJavaPlugin();
+        RedisManager redisManager = node.getRedisManager();
         try {
-            jedis.subscribe(new JedisPubSub() {
+            redisManager.getJedisPool().getResource().subscribe(new JedisPubSub() {
                 @Override
                 public void onMessage(String c, String bytes) {
                     ByteArrayDataInput receivedMessage = ByteStreams.newDataInput(BytesAndStrings.translate(bytes));
@@ -38,20 +37,22 @@ public class SubscribeRunnable implements Runnable {
                     String serverFrom = receivedMessage.readUTF();
                     String serverTo = receivedMessage.readUTF();
                     String content = receivedMessage.readUTF();
-
-                    if (plugin.getServerName().equals(serverFrom)) {
-                        plugin.getDebugger().info("Un mensaje fue recibido pero fue desde este servidor y fue omitido.");
+                    // Getting the node name.
+                    String nodeName = node.getNodeSettings().getName();
+                    // Checking if the received message is from this node.
+                    if (nodeName.equals(serverFrom)) {
+                        javaPlugin.getLogger().info("Un mensaje fue recibido pero fue desde este servidor y fue omitido.");
                         return;
                     }
 
-                    if (plugin.getServerName().equals(serverTo) || serverTo.equals("all")) {
-                        ChannelManager channelManager = plugin.getChannelManager();
+                    if (nodeName.equals(serverTo) || serverTo.equals("all")) {
+                        ChannelManager channelManager = node.getChannelManager();
                         if (channelManager.existChannel(channelName)) {
                             Channel channel = channelManager.getChannel(channelName);
                             if (messageType.equals(MessageType.MESSAGE.toString())) {
-                                channel.sendMessage(plugin, messageId, serverFrom, BytesAndStrings.translate(content));
+                                channel.sendMessage(node, messageId, serverFrom, BytesAndStrings.translate(content));
                             } else {
-                                MessageManager messageManager = plugin.getMessageManager();
+                                MessageManager messageManager = node.getMessageManager();
                                 if (messageManager.existMessage(messageId)) {
                                     Message message = messageManager.getMessage(messageId);
                                     message.response(serverFrom, BytesAndStrings.translate(content));
@@ -60,14 +61,14 @@ public class SubscribeRunnable implements Runnable {
                             }
                         }
                     } else {
-                        plugin.getDebugger().info("El mensaje recibido no es para este servidor y fue omitido.");
-                        plugin.getDebugger().info("El mensaje es para: " + serverTo);
-                        plugin.getDebugger().info("Este servidor es: " + plugin.getServerName());
+                        javaPlugin.getLogger().info("El mensaje recibido no es para este servidor y fue omitido.");
+                        javaPlugin.getLogger().info("El mensaje es para: " + serverTo);
+                        javaPlugin.getLogger().info("Este servidor es: " + nodeName);
                     }
                 }
-            }, "simpleMessaging");
+            }, node.getNodeSettings().getChannel());
         } catch (JedisConnectionException ignore) {
-            plugin.getDebugger().error("Subscriber connection closed.");
+            javaPlugin.getLogger().warning("Subscriber connection closed.");
         }
     }
 

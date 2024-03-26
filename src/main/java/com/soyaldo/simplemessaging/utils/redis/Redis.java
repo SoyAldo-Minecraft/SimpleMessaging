@@ -1,28 +1,22 @@
 package com.soyaldo.simplemessaging.utils.redis;
 
 
+import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
 
+@RequiredArgsConstructor
 public class Redis {
 
-    private final RedisInfo redisInfo;
+    // Redis Settings
+    private final String host;
+    private final int port;
+    private final String password;
+    // Jedis
     private Jedis jedis;
 
-    public Redis(RedisInfo redisInfo) {
-        this.redisInfo = redisInfo;
-    }
-
-    public RedisInfo getRedisInfo() {
-        return redisInfo;
-    }
-
-    public Jedis getJedis() {
-        return jedis;
-    }
-
     public void connect() {
-        jedis = new Jedis(redisInfo.getHost(), redisInfo.getPort());
-        jedis.auth(redisInfo.getPassword());
+        jedis = new Jedis(host, port);
+        jedis.auth(password);
         jedis.connect();
     }
 

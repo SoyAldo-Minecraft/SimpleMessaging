@@ -1,12 +1,14 @@
-package com.soyaldo.simplemessaging.commands;
+package com.soyaldo.simplemessaging.bukkit.commands;
 
 import com.soyaldo.simplemessaging.SimpleMessaging;
 import com.soyaldo.simplemessaging.utils.Command;
 import com.soyaldo.simplemessaging.utils.Copyright;
-import com.soyaldo.simplemessaging.utils.Messenger;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class AdminCommand extends Command {
 
@@ -18,15 +20,13 @@ public class AdminCommand extends Command {
     }
 
     private void onExecute(CommandSender sender, String[] args) {
-        Messenger messenger = plugin.getMessenger();
-
         if (!sender.hasPermission("simplemessaging.admin")) {
-            messenger.send(sender, "noPermission");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getString("noPermission")));
             return;
         }
 
         if (args.length == 0) {
-            messenger.send(sender, "emptySubCommand");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getString("emptySubCommand")));
             return;
         }
 
@@ -34,12 +34,13 @@ public class AdminCommand extends Command {
 
         switch (subCommand.toLowerCase()) {
             case "help": {
-                messenger.send(sender, "help");
+                List<String> help = plugin.getMessages().getStringList("help");
+                help.forEach(line -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', line)));
                 break;
             }
             case "reload": {
                 plugin.onReload();
-                messenger.send(sender, "reloaded");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getString("reloaded")));
                 break;
             }
             case "version": {
@@ -47,9 +48,9 @@ public class AdminCommand extends Command {
                 break;
             }
             default: {
-                messenger.send(sender, "invalidSubCommand", new String[][]{
-                        {"%subCommand%", subCommand}
-                });
+                String message = plugin.getMessages().getString("invalidSubCommand");
+                message = message.replace("%subCommand%", subCommand);
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.soyaldo.simplemessaging.utils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,17 +18,17 @@ public class Copyright {
     }
 
     public static void sendVersionStatus(JavaPlugin plugin, CommandSender commandSender, String status) {
-        List<String> versionStatus = new ArrayList<>();
-        versionStatus.add("&4»");
-        versionStatus.add("&4» &c" + plugin.getName() + " " + status);
-        versionStatus.add("&4»");
-        versionStatus.add("&4» &cVersion: &f" + plugin.getDescription().getVersion());
-        versionStatus.add("&4» &cAuthor: &fSoyAldo");
-        versionStatus.add("&4» &cWebsite: &fhttps://soyaldo.com/plugins/" + plugin.getName().toLowerCase());
-        versionStatus.add("&4»");
-        versionStatus.add("&4» &cCreated for &fmc.natublock.net");
-        versionStatus.add("&4»");
-        Messenger.sendRaw(commandSender, versionStatus);
+        List<String> version = new ArrayList<>();
+        version.add("&4»");
+        version.add("&4» &c" + plugin.getName() + " " + status);
+        version.add("&4»");
+        version.add("&4» &cVersion: &f" + plugin.getDescription().getVersion());
+        version.add("&4» &cAuthor: &fSoyAldo");
+        version.add("&4» &cWebsite: &fhttps://soyaldo.com/plugins/" + plugin.getName().toLowerCase());
+        version.add("&4»");
+        version.add("&4» &cI love the bread!");
+        version.add("&4»");
+        version.forEach(line -> commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', line)));
     }
 
 }
