@@ -1,72 +1,43 @@
 package com.soyaldo.simplemessaging;
 
-import com.soyaldo.simplemessaging.commands.AdminCommand;
-import com.soyaldo.simplemessaging.channel.ChannelManager;
-import com.soyaldo.simplemessaging.message.MessageManager;
-import com.soyaldo.simplemessaging.redis.RedisManager;
+import com.soyaldo.simplemessaging.bukkit.commands.AdminCommand;
+import com.soyaldo.simplemessaging.channel.models.Channel;
+import com.soyaldo.simplemessaging.node.Node;
+import com.soyaldo.simplemessaging.node.NodeSettings;
 import com.soyaldo.simplemessaging.utils.Copyright;
-import com.soyaldo.simplemessaging.utils.Messenger;
 import com.soyaldo.simplemessaging.utils.Yaml;
-import com.soyaldo.simplemessaging.utils.debugger.Debuggable;
-import com.soyaldo.simplemessaging.utils.debugger.Debugger;
 import lombok.Getter;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
-public final class SimpleMessaging extends JavaPlugin implements Debuggable {
+@Getter
+public final class SimpleMessaging extends JavaPlugin {
 
+    // Files
+    private final Yaml settings = new Yaml(this, "settings", getResource("settings.yml"));
+    private final Yaml messages = new Yaml(this, "messages", getResource("messages.yml"));
+    // Node
+    private Node node;
     // API
     @Getter
     public static API api;
-    // Files
-    @Getter
-    private final Yaml settings = new Yaml(this, "settings", getResource("settings.yml"));
-    @Getter
-    private final Yaml messages = new Yaml(this, "messages", getResource("messages.yml"));
-    // Debug
-    private boolean debug = false;
-    @Getter
-    private final Debugger debugger = new Debugger(this);
-    // Messenger
-    @Getter
-    private Messenger messenger;
-    // Information
-    @Getter
-    private String serverName;
-    @Getter
-    private int responseLimit;
-    // Managers
-    @Getter
-    private final RedisManager redisManager = new RedisManager(this);
-    @Getter
-    private final ChannelManager channelManager = new ChannelManager();
-    @Getter
-    private final MessageManager messageManager = new MessageManager();
 
     @Override
     public void onEnable() {
-        // API
-        api = new API(this);
         // Files
         settings.register();
         messages.register();
-        // Debug
-        debug = settings.getFileConfiguration().getBoolean("debug", false);
-        // Messenger
-        messenger = new Messenger(this, messages.getFileConfiguration());
-        // Information
-        serverName = settings.getFileConfiguration().getString("serverName", "");
-        if (serverName.isEmpty()) serverName = UUID.randomUUID().toString().split("-")[0];
-        responseLimit = settings.getFileConfiguration().getInt("message.responseTimeLimit", 3);
-        // Managers
-        redisManager.registerManager();
-        channelManager.registerManager();
-        messageManager.registerManager();
+        // Loading the new node settings.
+        NodeSettings nodeSettings = NodeSettings.loadFromConfiguration(settings.getFileConfiguration());
+        // Creating a new node instance.
+        node = new Node(this, nodeSettings);
+        node.register();
+        // API
+        api = new API(node);
         // Commands
         new AdminCommand(this).registerCommand(this);
-
         // Copyright
         Copyright.sendVersionStatusFromConsole(this, "&aEnabled");
     }
@@ -81,28 +52,17 @@ public final class SimpleMessaging extends JavaPlugin implements Debuggable {
         // Files
         settings.reload();
         messages.reload();
-        // Debug
-        debug = settings.getFileConfiguration().getBoolean("debug", false);
-        // Messenger
-        messenger = new Messenger(this, messages.getFileConfiguration());
-        // Information
-        serverName = settings.getFileConfiguration().getString("serverName", "");
-        if (serverName.isEmpty()) serverName = UUID.randomUUID().toString().split("-")[0];
-        responseLimit = settings.getFileConfiguration().getInt("message.responseTimeLimit", 3);
-        // Managers
-        redisManager.reloadManager();
-        channelManager.reloadManager();
-        messageManager.reloadManager();
-    }
-
-    @Override
-    public boolean isDebug() {
-        return debug;
-    }
-
-    @Override
-    public CommandSender getReceptor() {
-        return getServer().getConsoleSender();
+        // Loading the new node settings.
+        NodeSettings nodeSettings = NodeSettings.loadFromConfiguration(settings.getFileConfiguration());
+        // Creating temporal channels.
+        List<Channel> channels = new ArrayList<>(node.getChannelManager().getChannels().values());
+        // Creating a new node instance.
+        node = new Node(this, nodeSettings);
+        node.register();
+        // Adding temporal channels again.
+        channels.forEach(channel -> node.getChannelManager().addChannel(channel));
+        // API
+        api = new API(node);
     }
 
 }

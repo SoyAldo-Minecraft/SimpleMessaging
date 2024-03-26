@@ -1,17 +1,18 @@
-debug: false
-
-# Nombre del servidor que se usara para identificar este servidor.
+# Nombre del nodo que se usara para identificar este servidor.
 # Dejar vacío para generar uno aleatorio cada vez que se inicie el servidor.
-serverName: ""
+name: ""
 
-# Información para la conexión con redis.
+# Nombre del canal en el cual se enviaran y recibirán mensajes.
+# Si este está vacío se usará "simpleMessaging" por defecto.
+channel: "simpleMessaging"
+
+# Tiempo límite para recibir una respuesta en los mensajes.
+messageResponseLimit: 5
+
+# Configuración para la conexión con redis.
 redis:
   host: "localhost"
   port: 6379
   password: ""
   maxConnections: 10
   maxIdleConnections: 5
-
-# Ajustes para los mensajes.
-message:
-  responseTimeLimit: 5
