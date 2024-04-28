@@ -12,6 +12,8 @@ import java.util.UUID;
 @Setter
 public class NodeSettings {
 
+    // Debug
+    private boolean debug = false;
     // Node name.
     private final String name;
     private final String channel;
@@ -25,6 +27,8 @@ public class NodeSettings {
     private int redisMaxIdleConnections = 5;
 
     public static NodeSettings loadFromConfiguration(FileConfiguration configuration) {
+        // Getting debug
+        boolean debug = configuration.getBoolean("debug", false);
         // Getting the name.
         String name = configuration.getString("name", "");
         // If the name is empty.
@@ -42,6 +46,7 @@ public class NodeSettings {
         // Creating the node settings.
         NodeSettings nodeSettings = new NodeSettings(name, channel);
         // Set the settings.
+        nodeSettings.setDebug(debug);
         nodeSettings.setMessageResponseLimit(configuration.getInt("messageResponseLimit", 5));
         nodeSettings.setRedisHost(configuration.getString("redis.host", "localhost"));
         nodeSettings.setRedisPort(configuration.getInt("redis.port", 6379));

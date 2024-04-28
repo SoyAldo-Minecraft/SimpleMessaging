@@ -41,7 +41,9 @@ public class SubscribeRunnable implements Runnable {
                     String nodeName = node.getNodeSettings().getName();
                     // Checking if the received message is from this node.
                     if (nodeName.equals(serverFrom)) {
-                        javaPlugin.getLogger().info("Un mensaje fue recibido pero fue desde este servidor y fue omitido.");
+                        if (node.getNodeSettings().isDebug()) {
+                            javaPlugin.getLogger().info("Un mensaje fue recibido pero fue desde este servidor y fue omitido.");
+                        }
                         return;
                     }
 
@@ -61,14 +63,18 @@ public class SubscribeRunnable implements Runnable {
                             }
                         }
                     } else {
-                        javaPlugin.getLogger().info("El mensaje recibido no es para este servidor y fue omitido.");
-                        javaPlugin.getLogger().info("El mensaje es para: " + serverTo);
-                        javaPlugin.getLogger().info("Este servidor es: " + nodeName);
+                        if (node.getNodeSettings().isDebug()) {
+                            javaPlugin.getLogger().info("El mensaje recibido no es para este servidor y fue omitido.");
+                            javaPlugin.getLogger().info("El mensaje es para: " + serverTo);
+                            javaPlugin.getLogger().info("Este servidor es: " + nodeName);
+                        }
                     }
                 }
             }, node.getNodeSettings().getChannel());
         } catch (JedisConnectionException ignore) {
-            javaPlugin.getLogger().warning("Subscriber connection closed.");
+            if (node.getNodeSettings().isDebug()) {
+                javaPlugin.getLogger().warning("Subscriber connection closed.");
+            }
         }
     }
 

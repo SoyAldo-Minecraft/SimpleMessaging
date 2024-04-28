@@ -1,3 +1,6 @@
+# ¿Quiere ver información oculta acerca del funcionamiento?
+debug: false
+
 # Nombre del nodo que se usara para identificar este servidor.
 # Dejar vacío para generar uno aleatorio cada vez que se inicie el servidor.
 name: ""
