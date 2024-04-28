@@ -10,7 +10,7 @@ name: ""
 channel: "simpleMessaging"
 
 # Tiempo límite para recibir una respuesta en los mensajes.
-messageResponseLimit: 5
+messageResponseLimit: 4
 
 # Configuración para la conexión con redis.
 redis:
